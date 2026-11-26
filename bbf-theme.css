@@ -1,0 +1,127 @@
+/* bbf-theme.css: loads AFTER home.css, so these rules win. */
+
+/* ---------- Light mode: gold and white ---------- */
+:root[data-theme="light"] {
+  --bg: #ffffff; --bg2: #faf5e0; --card: #fffdf4; --card2: #f6eecf; --line: #e2d49c;
+  --text: #17130a; --muted: #675d3f;
+  --yel: #d4af37; --gold: #9a7b0a; --gold2: #b8941a; --goldDim: #8a6d1f; --grad: #d4af37;
+}
+:root[data-theme="light"] body { background: var(--bg); color: var(--text); }
+:root[data-theme="light"] header { background: #ffffff; border-bottom-color: var(--yel); }
+:root[data-theme="light"] header a,
+:root[data-theme="light"] .cart-btn,
+:root[data-theme="light"] .hamburger span { color: var(--text); border-color: var(--text); }
+:root[data-theme="light"] .hamburger span { background: var(--text); }
+:root[data-theme="light"] .mark { filter: invert(1); } /* white logo becomes black on white */
+
+/* Smooth fade when switching theme */
+body, header, .hero { transition: background-color .35s ease, color .35s ease, border-color .35s ease; }
+
+/* ---------- Hero: always exactly one screen, nothing cut off ---------- */
+:root { --tabs: 0px; }
+@media (max-width: 820px) { :root { --tabs: calc(58px + env(safe-area-inset-bottom, 0px)); } } /* room for the bottom bar */
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;               /* laptop: text left, photo right */
+  height: calc(100svh - var(--tabs));              /* exactly one screen */
+  min-height: 0;
+  padding: var(--hdr, 64px) 0 0;                   /* sit below the fixed header */
+}
+.hero::after { height: 12px; }
+.hero-copy { min-height: 0; justify-content: center; padding: 2vh 28px 4vh max(22px, calc((100vw - 1180px) / 2 + 22px)); }
+/* Text scales with BOTH width and height so the whole heading always fits */
+.hero h1 { font-size: clamp(2.4rem, min(9vw, 15vh), 8rem); margin-bottom: 2vh; }
+.hero .lead { font-size: clamp(.92rem, 2.3vh, 1.2rem); margin-bottom: 2.5vh; }
+.hero .btn, .hero .btn-ghost { padding: clamp(10px, 1.8vh, 15px) clamp(16px, 2.4vh, 26px); }
+.hero-photo { min-height: 0; height: 100%; position: relative; overflow: hidden; }
+.hero-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; } /* photo fills its box, never makes the hero taller */
+
+@media (max-width: 820px) {
+  .hero { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); } /* phone: text on top, photo fills the rest */
+  .hero-copy { padding: 2vh 22px 2.5vh; }
+  .hero h1 { font-size: clamp(2.2rem, min(14vw, 8.5vh), 5rem); }
+  .hero-photo { height: 100%; align-self: stretch; min-height: 0; } /* photo takes all the space left under the text */
+}
+@media (max-height: 520px) and (orientation: landscape) { /* short landscape phones: side by side */
+  .hero { grid-template-columns: 1.2fr .8fr; grid-template-rows: none; }
+  .hero h1 { font-size: clamp(1.8rem, 13vh, 4rem); }
+}
+
+/* ---------- First-visit welcome panel: slides up over the hero ---------- */
+.bbf-welcome { position: fixed; inset: 0; z-index: 400; display: flex; align-items: flex-end; justify-content: center;
+  background: rgba(0, 0, 0, 0); pointer-events: none; transition: background .35s ease; }
+.bbf-welcome.show { background: rgba(0, 0, 0, .45); pointer-events: auto; }
+.bbf-sheet { width: min(480px, 100%); background: var(--card); color: var(--text); border-top: 4px solid var(--yel);
+  padding: 22px 22px calc(22px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 14px;
+  transform: translateY(105%); transition: transform .45s cubic-bezier(.2, .8, .2, 1); }
+.bbf-welcome.show .bbf-sheet { transform: translateY(0); }
+.bbf-sheet h2 { font-size: 1.3rem; text-transform: uppercase; }
+.bbf-sheet p { color: var(--muted); font-size: .95rem; }
+.bbf-sheet label { display: grid; gap: 6px; font-weight: 700; font-size: .9rem; }
+.bbf-sheet select { background: var(--bg); color: var(--text); border: 2px solid var(--text); padding: 12px; font: inherit; border-radius: 0; }
+@media (min-width: 821px) { .bbf-welcome { align-items: center; } .bbf-sheet { border: 2px solid var(--text); } }
+@media (prefers-reduced-motion: reduce) { .bbf-sheet, .bbf-welcome, body { transition: none; } }
+
+/* ================= Stage 2: shop cards, account menu, skeletons, WhatsApp pill ================= */
+.wa-float { width: auto; height: auto; display: inline-flex; align-items: center; gap: 10px; padding: 10px 18px 10px 12px; border-radius: 999px; }
+.wa-float svg { width: 26px; height: 26px; flex: none; }
+.wa-float::after { content: "Chat with us"; font-weight: 800; font-size: .9rem; color: #fff; white-space: nowrap; } /* icon first, text beside it */
+.shop-grid { padding-bottom: 96px; }                       /* so the WhatsApp pill never covers Add to Cart */
+
+.product-visual { position: relative; }
+.product-visual img { width: 100%; display: block; transition: opacity .16s ease; }
+.product-visual img.swap { opacity: 0; }
+.arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border: 0; background: rgba(0,0,0,.55); color: #fff; font-size: 1.6rem; cursor: pointer; }
+.arrow.prev { left: 0; } .arrow.next { right: 0; }
+.heart { position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; border: 2px solid var(--text); background: var(--bg); color: var(--muted); font-size: 1.2rem; cursor: pointer; transition: transform .2s ease, color .2s ease; }
+.heart.on { color: #e0245e; transform: scale(1.12); }
+.fb { display: flex; justify-content: space-around; background: var(--text); color: var(--bg); font-weight: 800; padding: 6px 0; }   /* Front / Back strip above the picture */
+.price { font-weight: 800; font-size: 1.15rem; margin: 4px 0 8px; }
+.sizes { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.size { min-width: 44px; padding: 9px 10px; border: 2px solid var(--text); background: transparent; color: var(--text); font-weight: 700; cursor: pointer; transition: .15s; }
+.size.sel { background: var(--yel); border-color: var(--yel); color: #0e0e0e; }
+.product-card.need .sizes { animation: nudge .35s; outline: 2px solid #e0245e; outline-offset: 3px; }
+@keyframes nudge { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+.one-size { margin: 8px 0; font-weight: 700; }
+.ptime { font-size: .85rem; color: var(--muted); margin: 8px 0; }
+.review-link { display: inline-block; margin-top: 10px; font-weight: 700; text-decoration: underline; }
+.cur-pick { display: inline-flex; align-items: center; gap: 8px; margin: 14px 0 0 12px; font-weight: 700; }
+.cur-pick select { background: var(--bg); color: var(--text); border: 2px solid var(--text); padding: 8px; font: inherit; border-radius: 0; }
+
+/* Skeleton loading */
+@keyframes shimmer { to { background-position: -200% 0; } }
+.sk-card, .sk-block { background: linear-gradient(90deg, var(--card) 25%, var(--card2) 45%, var(--card) 65%) 0 0 / 200% 100%; animation: shimmer 1.3s linear infinite; }
+.sk-card { height: 460px; border: 1px solid var(--line); }
+.sk-page { position: fixed; inset: 0; z-index: 500; background: var(--bg); padding: 80px 22px 22px; display: grid; gap: 14px; align-content: start; transition: opacity .35s ease; }
+.sk-page.done { opacity: 0; pointer-events: none; }
+.sk-block { height: 22px; } .sk-block.big { height: 38vh; } .sk-block.w60 { width: 60%; }
+
+/* Account menu page */
+.account-wrap { max-width: 640px; margin: 0 auto; padding: 110px 18px 120px; }
+.ahead { font-size: .95rem; color: var(--muted); margin: 26px 0 8px; }
+.arow { display: grid; grid-template-columns: 1fr auto; align-items: center; width: 100%; text-align: left; background: var(--card); color: var(--text); border: 0; border-bottom: 1px solid var(--line); padding: 16px 14px; cursor: pointer; font: inherit; font-weight: 700; transition: background .2s ease, padding-left .2s ease; }
+.arow:hover { background: var(--card2); padding-left: 20px; }
+.arow small { grid-column: 1; color: var(--muted); font-weight: 400; } .arow i { grid-row: 1 / span 2; grid-column: 2; font-style: normal; font-size: 1.5rem; }
+.opt { display: block; width: 100%; text-align: left; padding: 14px; margin: 0 0 8px; background: transparent; color: var(--text); border: 2px solid var(--line); font: inherit; font-weight: 700; cursor: pointer; }
+.opt.sel { border-color: var(--yel); background: var(--card2); }
+.rform { display: grid; gap: 12px; } .rform label { display: grid; gap: 6px; font-weight: 700; }
+.rform input, .rform select, .rform textarea { background: var(--bg); color: var(--text); border: 2px solid var(--text); padding: 12px; font: inherit; border-radius: 0; }
+.rv-err { color: #e0245e; min-height: 1.2em; font-weight: 700; }
+.review-card, .fav-row { display: grid; gap: 4px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.fav-row { grid-template-columns: 64px 1fr auto; align-items: center; gap: 12px; } .fav-row img { width: 64px; height: 64px; object-fit: cover; }
+.faq-wrap { max-width: 640px; margin: 0 auto; padding: 110px 18px 120px; display: grid; gap: 16px; }
+
+/* Light mode touch-ups for the app pieces */
+:root[data-theme="light"] .tabbar, :root[data-theme="light"] .cart-drawer, :root[data-theme="light"] .sheet-card,
+:root[data-theme="light"] .mobile-menu, :root[data-theme="light"] footer { background: var(--card); color: var(--text); border-color: var(--line); }
+:root[data-theme="light"] .tabbar a, :root[data-theme="light"] .tabbar button { color: var(--text); }
+:root[data-theme="light"] .product-card { background: var(--card); border-color: var(--line); }
+
+/* Final touch-ups */
+.hero-photo { width: 100%; max-width: none; justify-self: stretch; }   /* photo reaches the screen edge on laptops */
+.hero-photo figcaption { color: #ffffff; }                              /* readable caption in light mode too */
+@media (max-width: 820px) { .acct-link { display: none; } }             /* phones use the Account tab at the bottom */
+.acct-link { font-weight: 700; margin-right: 14px; }
+
+.sheet-empty { margin: 14px 0 18px; }   /* space between heading and the empty-reviews message */
